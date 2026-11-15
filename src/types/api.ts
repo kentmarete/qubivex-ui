@@ -21,6 +21,15 @@ export interface ModelCard {
   owned_by: string;
 }
 
+/** POST /v1/models/unload. */
+export interface UnloadResult {
+  id: string;
+  object: 'model';
+  deleted: true;
+  /** Requests still running on the unloaded model; its memory is freed when they end. */
+  draining: number;
+}
+
 export interface ModelList {
   object: 'list';
   data: ModelCard[];

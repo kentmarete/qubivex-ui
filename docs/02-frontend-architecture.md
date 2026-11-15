@@ -225,8 +225,11 @@ newer ones. Detect features instead of assuming them:
 
 - `GET /v1/system` → if it has `version`, use that. If `capabilities` is present (03, §3.1),
   use it as the source of truth.
-- Otherwise fall back to probing: `GET /v1/admin/models/installed` → 404 `not_found` means
-  model management is unavailable. Show "Requires Qubivex ≥ X" instead of the panels.
+- Otherwise fall back to probing: `GET /v1/admin/models/installed` → 404 or 405 means
+  model management is unavailable. Today's gateway answers **405** `METHOD_NOT_ALLOWED`,
+  because the path matches `DELETE /v1/admin/models/{id}` (verified against `qubivex serve`
+  in Phase 3a). 200, 401 or 403 mean the route exists. Show "Requires Qubivex ≥ X" instead
+  of the panels.
 
 ## 10. Design tokens
 

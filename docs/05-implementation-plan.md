@@ -61,7 +61,7 @@ see an auth error and recover by entering the key, and see the System page with 
 
 **Done when:** running a chat shows tokens/s and TTFT moving, and pausing freezes the charts.
 
-## Phase 3a: Models, using existing endpoints (qubivex-ui)
+## Phase 3a: Models, using existing endpoints (qubivex-ui): done
 
 - [ ] Installed tab in fallback mode (loaded models from `/v1/system`).
 - [ ] Load (long timeout plus state polling) and Unload with admin auth. Handle 401, 403 and 409.
