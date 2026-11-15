@@ -1,0 +1,335 @@
+# HELP qubivex_requests_total Requests answered, by endpoint and status.
+# TYPE qubivex_requests_total counter
+qubivex_requests_total{endpoint="chat_completions",status="200"} 3
+qubivex_requests_total{endpoint="models",status="200"} 1
+qubivex_requests_total{endpoint="system",status="200"} 1
+# HELP qubivex_http_request_duration_seconds Time to answer a request (for a stream, to its first byte).
+# TYPE qubivex_http_request_duration_seconds histogram
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="0.005"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="0.01"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="0.025"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="0.05"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="0.1"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="0.25"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="0.5"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="1"} 3
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="2.5"} 3
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="5"} 3
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="10"} 3
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="30"} 3
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="60"} 3
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="120"} 3
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="300"} 3
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="600"} 3
+qubivex_http_request_duration_seconds_bucket{endpoint="chat_completions",le="+Inf"} 3
+qubivex_http_request_duration_seconds_sum{endpoint="chat_completions"} 1.336314542
+qubivex_http_request_duration_seconds_count{endpoint="chat_completions"} 3
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="0.005"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="0.01"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="0.025"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="0.05"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="0.1"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="0.25"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="0.5"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="1"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="2.5"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="5"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="10"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="30"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="60"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="120"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="300"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="600"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="models",le="+Inf"} 1
+qubivex_http_request_duration_seconds_sum{endpoint="models"} 0.000293959
+qubivex_http_request_duration_seconds_count{endpoint="models"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="0.005"} 0
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="0.01"} 0
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="0.025"} 0
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="0.05"} 0
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="0.1"} 0
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="0.25"} 0
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="0.5"} 0
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="1"} 0
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="2.5"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="5"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="10"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="30"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="60"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="120"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="300"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="600"} 1
+qubivex_http_request_duration_seconds_bucket{endpoint="system",le="+Inf"} 1
+qubivex_http_request_duration_seconds_sum{endpoint="system"} 1.54557375
+qubivex_http_request_duration_seconds_count{endpoint="system"} 1
+# HELP qubivex_generations_active Generations running now.
+# TYPE qubivex_generations_active gauge
+qubivex_generations_active 0
+# HELP qubivex_prompt_tokens_total Prompt tokens of admitted generations.
+# TYPE qubivex_prompt_tokens_total counter
+qubivex_prompt_tokens_total 102
+# HELP qubivex_generated_tokens_total Tokens generated; its rate is the aggregate tokens per second.
+# TYPE qubivex_generated_tokens_total counter
+qubivex_generated_tokens_total 34
+# HELP qubivex_generations_cancelled_total Generations stopped because the client went away or the request was abandoned.
+# TYPE qubivex_generations_cancelled_total counter
+qubivex_generations_cancelled_total 0
+# HELP qubivex_generations_timed_out_total Generations cut short by the request timeout.
+# TYPE qubivex_generations_timed_out_total counter
+qubivex_generations_timed_out_total 0
+# HELP qubivex_generations_failed_total Generations that failed after admission.
+# TYPE qubivex_generations_failed_total counter
+qubivex_generations_failed_total 0
+# HELP qubivex_model_loads_total Model loads started through the admin endpoint.
+# TYPE qubivex_model_loads_total counter
+qubivex_model_loads_total 0
+# HELP qubivex_queue_wait_seconds Scheduler wait: from a request's arrival to its grant of a slot and memory.
+# TYPE qubivex_queue_wait_seconds histogram
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.005"} 2
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.01"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.025"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.05"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.1"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.25"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.5"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="1"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="2.5"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="5"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="10"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="30"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="60"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="120"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="300"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="600"} 3
+qubivex_queue_wait_seconds_bucket{model="qwen2.5-0.5b-instruct",le="+Inf"} 3
+qubivex_queue_wait_seconds_sum{model="qwen2.5-0.5b-instruct"} 0.008085667
+qubivex_queue_wait_seconds_count{model="qwen2.5-0.5b-instruct"} 3
+# HELP qubivex_time_to_first_token_seconds From a request's arrival to its first generated token.
+# TYPE qubivex_time_to_first_token_seconds histogram
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.005"} 0
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.01"} 0
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.025"} 0
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.05"} 0
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.1"} 0
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.25"} 1
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.5"} 3
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="1"} 3
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="2.5"} 3
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="5"} 3
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="10"} 3
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="30"} 3
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="60"} 3
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="120"} 3
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="300"} 3
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="600"} 3
+qubivex_time_to_first_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="+Inf"} 3
+qubivex_time_to_first_token_seconds_sum{model="qwen2.5-0.5b-instruct"} 0.849449083
+qubivex_time_to_first_token_seconds_count{model="qwen2.5-0.5b-instruct"} 3
+# HELP qubivex_generation_duration_seconds Total request latency: from arrival to the end of the generation, however it ended.
+# TYPE qubivex_generation_duration_seconds histogram
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.005"} 0
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.01"} 0
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.025"} 0
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.05"} 0
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.1"} 0
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.25"} 0
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.5"} 0
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="1"} 3
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="2.5"} 3
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="5"} 3
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="10"} 3
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="30"} 3
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="60"} 3
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="120"} 3
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="300"} 3
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="600"} 3
+qubivex_generation_duration_seconds_bucket{model="qwen2.5-0.5b-instruct",le="+Inf"} 3
+qubivex_generation_duration_seconds_sum{model="qwen2.5-0.5b-instruct"} 1.943355458
+qubivex_generation_duration_seconds_count{model="qwen2.5-0.5b-instruct"} 3
+# HELP qubivex_inter_token_seconds Time between one generated token and the next.
+# TYPE qubivex_inter_token_seconds histogram
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.001"} 0
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.0025"} 0
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.005"} 0
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.01"} 0
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.025"} 6
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.05"} 27
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.1"} 31
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.25"} 31
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.5"} 31
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="1"} 31
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="2.5"} 31
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="5"} 31
+qubivex_inter_token_seconds_bucket{model="qwen2.5-0.5b-instruct",le="+Inf"} 31
+qubivex_inter_token_seconds_sum{model="qwen2.5-0.5b-instruct"} 1.0682845000000003
+qubivex_inter_token_seconds_count{model="qwen2.5-0.5b-instruct"} 31
+# HELP qubivex_prompt_tokens_per_second Prompt tokens run (not reused from retained KV) per second, up to the first token.
+# TYPE qubivex_prompt_tokens_per_second histogram
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="1"} 0
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="2"} 0
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="5"} 0
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="10"} 0
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="20"} 0
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="30"} 0
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="40"} 0
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="50"} 0
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="75"} 0
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="100"} 1
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="150"} 2
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="200"} 3
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="300"} 3
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="500"} 3
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="1000"} 3
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="2000"} 3
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="5000"} 3
+qubivex_prompt_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="+Inf"} 3
+qubivex_prompt_tokens_per_second_sum{model="qwen2.5-0.5b-instruct"} 398.3964029103282
+qubivex_prompt_tokens_per_second_count{model="qwen2.5-0.5b-instruct"} 3
+# HELP qubivex_generation_tokens_per_second Tokens generated per second after the first, per generation of two tokens or more.
+# TYPE qubivex_generation_tokens_per_second histogram
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="1"} 0
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="2"} 0
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="5"} 0
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="10"} 0
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="20"} 0
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="30"} 1
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="40"} 3
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="50"} 3
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="75"} 3
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="100"} 3
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="150"} 3
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="200"} 3
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="300"} 3
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="500"} 3
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="1000"} 3
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="2000"} 3
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="5000"} 3
+qubivex_generation_tokens_per_second_bucket{model="qwen2.5-0.5b-instruct",le="+Inf"} 3
+qubivex_generation_tokens_per_second_sum{model="qwen2.5-0.5b-instruct"} 89.52568345221444
+qubivex_generation_tokens_per_second_count{model="qwen2.5-0.5b-instruct"} 3
+# HELP qubivex_model_load_seconds How long a model load through the admin endpoint took.
+# TYPE qubivex_model_load_seconds histogram
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.005"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.01"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.025"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.05"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.1"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.25"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="0.5"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="1"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="2.5"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="5"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="10"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="30"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="60"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="120"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="300"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="600"} 0
+qubivex_model_load_seconds_bucket{model="qwen2.5-0.5b-instruct",le="+Inf"} 0
+qubivex_model_load_seconds_sum{model="qwen2.5-0.5b-instruct"} 0
+qubivex_model_load_seconds_count{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_kv_reserved_positions KV positions reserved by live conversations.
+# TYPE qubivex_kv_reserved_positions gauge
+qubivex_kv_reserved_positions{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_expert_cache_bytes Expert cache capacity (the planner lowers it as the KV grows).
+# TYPE qubivex_expert_cache_bytes gauge
+qubivex_expert_cache_bytes{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_generation_slots_free Generations that could start now.
+# TYPE qubivex_generation_slots_free gauge
+qubivex_generation_slots_free{model="qwen2.5-0.5b-instruct"} 4
+# HELP qubivex_queue_depth Requests waiting to start.
+# TYPE qubivex_queue_depth gauge
+qubivex_queue_depth{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_queue_rejected_total Requests refused because the queue was full.
+# TYPE qubivex_queue_rejected_total counter
+qubivex_queue_rejected_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_queue_granted_total Requests granted a slot and memory.
+# TYPE qubivex_queue_granted_total counter
+qubivex_queue_granted_total{model="qwen2.5-0.5b-instruct"} 3
+# HELP qubivex_prefix_cache_lookups_total Retained-KV lookups.
+# TYPE qubivex_prefix_cache_lookups_total counter
+qubivex_prefix_cache_lookups_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_prefix_cache_hits_total Retained-KV lookups that found a prefix.
+# TYPE qubivex_prefix_cache_hits_total counter
+qubivex_prefix_cache_hits_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_prefix_cache_tokens_reused_total Prompt tokens that did not have to run.
+# TYPE qubivex_prefix_cache_tokens_reused_total counter
+qubivex_prefix_cache_tokens_reused_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_prefix_cache_evictions_total Retained KV dropped for room.
+# TYPE qubivex_prefix_cache_evictions_total counter
+qubivex_prefix_cache_evictions_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_prefix_cache_positions KV positions retained now.
+# TYPE qubivex_prefix_cache_positions gauge
+qubivex_prefix_cache_positions{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_expert_cache_hits_total Expert acquires served from memory.
+# TYPE qubivex_expert_cache_hits_total counter
+qubivex_expert_cache_hits_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_expert_cache_loads_total Expert reads completed (cache misses and prefetches).
+# TYPE qubivex_expert_cache_loads_total counter
+qubivex_expert_cache_loads_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_expert_cache_evictions_total Experts evicted.
+# TYPE qubivex_expert_cache_evictions_total counter
+qubivex_expert_cache_evictions_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_expert_read_bytes_total Bytes of experts read from disk; its rate is the disk read throughput.
+# TYPE qubivex_expert_read_bytes_total counter
+qubivex_expert_read_bytes_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_expert_load_wait_seconds_total Time generations spent blocked on expert reads; over loads, the expert load latency.
+# TYPE qubivex_expert_load_wait_seconds_total counter
+qubivex_expert_load_wait_seconds_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_expert_read_retries_total Failed expert reads attempted again.
+# TYPE qubivex_expert_read_retries_total counter
+qubivex_expert_read_retries_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_expert_read_timeouts_total Waits for an expert that timed out.
+# TYPE qubivex_expert_read_timeouts_total counter
+qubivex_expert_read_timeouts_total{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_batch_passes_total Forward passes run through the combining point.
+# TYPE qubivex_batch_passes_total counter
+qubivex_batch_passes_total{model="qwen2.5-0.5b-instruct"} 35
+# HELP qubivex_batch_steps_total Sequence steps those passes ran; over passes, the mean batch width.
+# TYPE qubivex_batch_steps_total counter
+qubivex_batch_steps_total{model="qwen2.5-0.5b-instruct"} 35
+# HELP qubivex_memory_dense_bytes Host memory of the weights that stay resident.
+# TYPE qubivex_memory_dense_bytes gauge
+qubivex_memory_dense_bytes{model="qwen2.5-0.5b-instruct"} 988065536
+# HELP qubivex_memory_expert_cache_bytes Host memory of the experts cached now.
+# TYPE qubivex_memory_expert_cache_bytes gauge
+qubivex_memory_expert_cache_bytes{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_memory_kv_bytes Host memory of KV caches, live and retained.
+# TYPE qubivex_memory_kv_bytes gauge
+qubivex_memory_kv_bytes{model="qwen2.5-0.5b-instruct"} 6291456
+# HELP qubivex_memory_activations_bytes Host memory of activations and scratch.
+# TYPE qubivex_memory_activations_bytes gauge
+qubivex_memory_activations_bytes{model="qwen2.5-0.5b-instruct"} 0
+# HELP qubivex_memory_budget_bytes The memory plan's host budget (0 without a plan).
+# TYPE qubivex_memory_budget_bytes gauge
+qubivex_memory_budget_bytes{model="qwen2.5-0.5b-instruct"} 3735025326
+# HELP qubivex_vram_dense_bytes Discrete-GPU memory of the dense weights' copy (ADR-018; only with such a device).
+# TYPE qubivex_vram_dense_bytes gauge
+# HELP qubivex_vram_expert_cache_bytes Discrete-GPU memory of the experts' copies cached now.
+# TYPE qubivex_vram_expert_cache_bytes gauge
+# HELP qubivex_vram_used_bytes Discrete-GPU memory allocated now, by the device's count.
+# TYPE qubivex_vram_used_bytes gauge
+# HELP qubivex_vram_peak_bytes The most discrete-GPU memory allocated at once.
+# TYPE qubivex_vram_peak_bytes gauge
+# HELP qubivex_vram_capacity_bytes The discrete GPU's memory.
+# TYPE qubivex_vram_capacity_bytes gauge
+# HELP qubivex_vram_budget_bytes The memory plan's VRAM budget (0 without a plan).
+# TYPE qubivex_vram_budget_bytes gauge
+# HELP qubivex_device_expert_hits_total Experts found in the device expert cache.
+# TYPE qubivex_device_expert_hits_total counter
+# HELP qubivex_device_expert_copies_total Experts copied to the device.
+# TYPE qubivex_device_expert_copies_total counter
+# HELP qubivex_device_expert_evictions_total Expert copies evicted from the device to make room.
+# TYPE qubivex_device_expert_evictions_total counter
+# HELP qubivex_device_upload_bytes_total Weight bytes copied from host to device.
+# TYPE qubivex_device_upload_bytes_total counter
+# HELP qubivex_device_activation_bytes_total Activation bytes copied to and from the device.
+# TYPE qubivex_device_activation_bytes_total counter
+# HELP qubivex_device_transfer_seconds_total Time host-device copies took (measured on a real device, modelled on a simulated one).
+# TYPE qubivex_device_transfer_seconds_total counter
+# HELP qubivex_process_resident_bytes Resident set size of the serving process.
+# TYPE qubivex_process_resident_bytes gauge
+qubivex_process_resident_bytes 889307136
+# HELP qubivex_process_peak_resident_bytes Peak resident set size: the kernel's high-water mark on Linux, elsewhere the highest value a scrape has read.
+# TYPE qubivex_process_peak_resident_bytes gauge
+qubivex_process_peak_resident_bytes 889307136

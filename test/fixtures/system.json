@@ -1,0 +1,196 @@
+{
+    "generations_active": 0,
+    "hardware": {
+        "cpu": {
+            "arch": "aarch64",
+            "logical_cores": {
+                "known": 11
+            },
+            "model": {
+                "known": "Apple M3 Pro"
+            },
+            "numa_nodes": {
+                "known": 1
+            },
+            "physical_cores": {
+                "known": 11
+            },
+            "simd": [
+                "neon",
+                "fp16",
+                "dotprod",
+                "i8mm",
+                "bf16"
+            ],
+            "tiers": {
+                "known": [
+                    {
+                        "logical": 5,
+                        "name": "Performance",
+                        "physical": 5
+                    },
+                    {
+                        "logical": 6,
+                        "name": "Efficiency",
+                        "physical": 6
+                    }
+                ]
+            },
+            "vendor": {
+                "known": "Apple"
+            }
+        },
+        "gpus": [
+            {
+                "backend": "cuda",
+                "status": {
+                    "reason": "CUDA is not supported on macOS",
+                    "status": "unavailable"
+                }
+            },
+            {
+                "backend": "vulkan",
+                "status": {
+                    "devices": [
+                        {
+                            "compute_units": {
+                                "unknown": "not reported by vulkaninfo --summary"
+                            },
+                            "driver": {
+                                "known": "1.4.2"
+                            },
+                            "memory": {
+                                "unknown": "vulkaninfo --summary reports no heap sizes"
+                            },
+                            "name": "Apple M3 Pro",
+                            "ordinal": 0,
+                            "unified_memory": true
+                        }
+                    ],
+                    "status": "available"
+                }
+            },
+            {
+                "backend": "metal",
+                "status": {
+                    "devices": [
+                        {
+                            "compute_units": {
+                                "known": 14
+                            },
+                            "driver": {
+                                "unknown": "not reported by system_profiler"
+                            },
+                            "memory": {
+                                "unknown": "unified memory: shares system RAM"
+                            },
+                            "name": "Apple M3 Pro",
+                            "ordinal": 0,
+                            "unified_memory": true
+                        }
+                    ],
+                    "status": "available"
+                }
+            }
+        ],
+        "memory": {
+            "cgroup_limit": {
+                "known": "none"
+            },
+            "total": {
+                "known": 19327352832
+            }
+        },
+        "os": {
+            "family": "macos",
+            "kernel": {
+                "known": "27.2.0"
+            },
+            "name": {
+                "known": "macOS 27.2 (26B123)"
+            }
+        },
+        "storage": {
+            "known": [
+                {
+                    "available": {
+                        "known": 159035019264
+                    },
+                    "capacity": {
+                        "known": 494384795648
+                    },
+                    "filesystem": "apfs",
+                    "kind": {
+                        "known": "ssd"
+                    },
+                    "mount_point": "/",
+                    "source": "/dev/disk3s1s1"
+                },
+                {
+                    "available": {
+                        "known": 159035019264
+                    },
+                    "capacity": {
+                        "known": 494384795648
+                    },
+                    "filesystem": "apfs",
+                    "kind": {
+                        "known": "ssd"
+                    },
+                    "mount_point": "/System/Volumes/Data",
+                    "source": "/dev/disk3s4"
+                },
+                {
+                    "available": {
+                        "known": 159035019264
+                    },
+                    "capacity": {
+                        "known": 494384795648
+                    },
+                    "filesystem": "apfs",
+                    "kind": {
+                        "known": "ssd"
+                    },
+                    "mount_point": "/Volumes/Projects",
+                    "source": "/dev/disk3s2"
+                }
+            ]
+        }
+    },
+    "model_states": [
+        {
+            "id": "qwen2.5-0.5b-instruct",
+            "state": "loaded"
+        }
+    ],
+    "models": [
+        {
+            "architecture": "transformer_dense",
+            "expert_cache_bytes": 0,
+            "generation_slots": 4,
+            "generation_slots_free": 4,
+            "id": "qwen2.5-0.5b-instruct",
+            "kv_reserved_positions": 0,
+            "ledger_bytes": {
+                "dense": 988065536,
+                "expert_cache": 0,
+                "kv": 6291456
+            },
+            "max_context": 32768,
+            "placement": "cpu",
+            "plan_budget_bytes": 3735025326,
+            "prefix_cache": {
+                "entries": 0,
+                "evicted": 0,
+                "hits": 0,
+                "lookups": 0,
+                "positions": 0,
+                "tokens_reused": 0
+            },
+            "queue_depth": 0,
+            "queue_limit": 32
+        }
+    ],
+    "models_draining": 0,
+    "object": "system"
+}

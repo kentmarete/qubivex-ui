@@ -1,0 +1,191 @@
+// DTOs of the Qubivex gateway, written from payloads captured in test/fixtures/
+// (see docs/01-api-inventory.md). Fields the server may omit are optional.
+
+/** OpenAI-shaped error body: every gateway error has this shape. */
+export interface ApiErrorBody {
+  code: string | null;
+  message: string;
+  param: string | null;
+  type: string | null;
+}
+
+export interface Health {
+  status: string;
+  models: number;
+}
+
+export interface ModelCard {
+  id: string;
+  object: 'model';
+  created: number;
+  owned_by: string;
+}
+
+export interface ModelList {
+  object: 'list';
+  data: ModelCard[];
+}
+
+// ---- /v1/system ----------------------------------------------------------------
+
+/** `qubivex_hardware::Probed<T>`: a value the OS reported, or why it could not. */
+export type Probed<T> = { known: T } | { unknown: string };
+
+export interface CpuTier {
+  name: string;
+  physical: number;
+  logical: number;
+}
+
+export interface CpuInfo {
+  arch: string;
+  vendor?: Probed<string>;
+  model?: Probed<string>;
+  physical_cores?: Probed<number>;
+  logical_cores?: Probed<number>;
+  numa_nodes?: Probed<number>;
+  tiers?: Probed<CpuTier[]>;
+  simd?: string[];
+}
+
+export interface GpuDevice {
+  name: string;
+  ordinal: number;
+  driver?: Probed<string>;
+  memory?: Probed<number>;
+  compute_units?: Probed<number>;
+  unified_memory?: boolean;
+}
+
+export type GpuStatus =
+  | { status: 'available'; devices: GpuDevice[] }
+  | { status: 'unavailable'; reason: string };
+
+export interface GpuInfo {
+  backend: string;
+  status: GpuStatus;
+}
+
+/** `"none"` or `{ "limited": bytes }`. */
+export type CgroupLimit = 'none' | { limited: number };
+
+export interface MemoryInfo {
+  total?: Probed<number>;
+  available?: Probed<number>;
+  cgroup_limit?: Probed<CgroupLimit>;
+}
+
+export interface StorageInfo {
+  mount_point: string;
+  source?: string;
+  filesystem?: string;
+  kind?: Probed<string>;
+  capacity?: Probed<number>;
+  available?: Probed<number>;
+}
+
+export interface OsInfo {
+  family: string;
+  name?: Probed<string>;
+  kernel?: Probed<string>;
+}
+
+export interface HardwareProfile {
+  cpu?: CpuInfo;
+  memory?: MemoryInfo;
+  gpus?: GpuInfo[];
+  storage?: Probed<StorageInfo[]>;
+  os?: OsInfo;
+}
+
+export interface PrefixCacheStats {
+  entries: number;
+  positions: number;
+  lookups: number;
+  hits: number;
+  tokens_reused: number;
+  evicted: number;
+}
+
+export interface LoadedModel {
+  id: string;
+  architecture: string;
+  max_context: number;
+  generation_slots: number;
+  generation_slots_free: number;
+  queue_depth: number;
+  queue_limit: number;
+  kv_reserved_positions: number;
+  prefix_cache: PrefixCacheStats;
+  expert_cache_bytes: number;
+  plan_budget_bytes: number | null;
+  ledger_bytes: { dense: number; expert_cache: number; kv: number };
+  /** Execution backend: cpu, metal, vulkan, sim. */
+  placement: string;
+}
+
+export type ModelState = 'loading' | 'loaded' | 'failed';
+
+/** Present on servers with the additions of docs/03 §3.1; absent today. */
+export interface Capabilities {
+  admin?: boolean;
+  model_management?: boolean;
+  metrics?: boolean;
+  multimodal?: boolean;
+  web_ui?: boolean;
+}
+
+export interface SystemInfo {
+  object: 'system';
+  hardware: HardwareProfile | null;
+  models: LoadedModel[];
+  model_states: { id: string; state: ModelState }[];
+  models_draining: number;
+  generations_active: number;
+  version?: string;
+  uptime_seconds?: number;
+  capabilities?: Capabilities;
+}
+
+// ---- chat ----------------------------------------------------------------------
+
+export interface Usage {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+  prompt_tokens_details?: { cached_tokens: number };
+}
+
+/** Only text parts exist: the gateway refuses any other part type (openai.rs). */
+export type ContentPart = { type: 'text'; text: string };
+
+export interface ChatRequestMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string | ContentPart[];
+}
+
+export interface ChatRequest {
+  model: string;
+  messages: ChatRequestMessage[];
+  stream: true;
+  stream_options?: { include_usage: boolean };
+  temperature?: number;
+  top_p?: number;
+  top_k?: number;
+  max_tokens?: number;
+  seed?: number;
+  stop?: string[];
+}
+
+export interface ChatChunk {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: {
+    index: number;
+    delta?: { role?: string; content?: string };
+    finish_reason: string | null;
+  }[];
+  usage?: Usage;
+}
