@@ -1,5 +1,35 @@
 # Changelog
 
+## Phase 3a: Models with load and unload (2026-11-15)
+
+Uses only existing routes: `/v1/system`, `POST /v1/models/load`, `POST /v1/models/unload`.
+No backend changes. Checked against `qubivex serve` (qwen2.5-0.5b-instruct, qwen3-0.6b).
+
+- Models page with Installed, Discover and Jobs tabs.
+- Installed, in fallback mode: the runtime's models from `/v1/system` (state, backend,
+  architecture, context, slots, queue, memory against the plan), with the banner "Showing
+  loaded models only".
+- Load (by installed id or server directory, optional serve-as id) with a 10-minute
+  timeout. The row shows *loading* at once with elapsed time, and `/v1/system` is polled
+  every second until the server reports `loaded` or `failed` (5 s otherwise). A load that
+  times out or loses the connection is reported as possibly still running on the server.
+- Unload behind a confirm dialog that says what happens to running and waiting requests and
+  that files stay on disk. The notice reports the `draining` count. Models unloaded this
+  session stay listed with a one-click Load.
+- Failed loads show Retry (re-sends the original `model`) and Clear (unloads the entry).
+- Load and unload state lives outside React, so leaving the page during a long load loses
+  nothing. Chat's model list refreshes after each action.
+- Admin access is checked up front (the side-effect-free unload probe from Phase 1):
+  accepted, missing, rejected, or disabled on the server. Actions are disabled with the
+  reason unless the token is accepted; a 401 opens the admin token dialog; a 403
+  `admin_disabled` from any action disables the rest. 409 and other errors show message,
+  code and request id.
+- Capability detection: `capabilities` from `/v1/system` when present, else a probe of
+  `GET /v1/admin/models/installed`. Today's gateway answers that with **405** (the path
+  matches `DELETE /v1/admin/models/{id}`), not the 404 docs/02 assumed; both now mean
+  "unavailable". Discover and Jobs show an `Unavailable` panel.
+- Tests: 74 in all, 16 of them new.
+
 ## Phase 2: Metrics (2026-11-15)
 
 Reads `GET /metrics` (Prometheus text) only. No backend changes.

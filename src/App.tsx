@@ -6,7 +6,7 @@ import { ModelSelect } from './components/chat/ModelSelect';
 import { useRoute } from './hooks/useRoute';
 import { RuntimeProvider } from './hooks/useRuntime';
 import { ChatPage } from './pages/ChatPage';
-import { ModelsPage } from './pages/Placeholders';
+import { ModelsPage } from './pages/ModelsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { SystemPage } from './pages/SystemPage';
 import { onAuthRequired } from './services/api';
@@ -53,7 +53,7 @@ function Shell() {
               <MetricsPage />
             </Suspense>
           )}
-          {page === 'models' && <ModelsPage />}
+          {page === 'models' && <ModelsPage onAskKey={setAsk} />}
           {page === 'system' && <SystemPage />}
           {page === 'settings' && <SettingsPage />}
         </main>
