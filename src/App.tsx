@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { AuthDialog } from './components/layout/AuthDialog';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
@@ -6,12 +6,16 @@ import { ModelSelect } from './components/chat/ModelSelect';
 import { useRoute } from './hooks/useRoute';
 import { RuntimeProvider } from './hooks/useRuntime';
 import { ChatPage } from './pages/ChatPage';
-import { MetricsPage, ModelsPage } from './pages/Placeholders';
+import { ModelsPage } from './pages/Placeholders';
 import { SettingsPage } from './pages/SettingsPage';
 import { SystemPage } from './pages/SystemPage';
 import { onAuthRequired } from './services/api';
 import type { SecretKind } from './services/auth';
 import { PAGES } from './utils/routes';
+import { Spinner } from './components/common/ui';
+
+// Recharts is most of the bundle: load it with the Metrics page only.
+const MetricsPage = lazy(() => import('./pages/MetricsPage').then((m) => ({ default: m.MetricsPage })));
 
 function Shell() {
   const [page, navigate] = useRoute();
@@ -38,7 +42,17 @@ function Shell() {
           <div className={page === 'chat' ? 'h-full' : 'hidden'}>
             <ChatPage onAskKey={() => setAsk('api')} />
           </div>
-          {page === 'metrics' && <MetricsPage />}
+          {page === 'metrics' && (
+            <Suspense
+              fallback={
+                <div className="flex items-center gap-2 p-6 text-muted">
+                  <Spinner /> Loading metrics…
+                </div>
+              }
+            >
+              <MetricsPage />
+            </Suspense>
+          )}
           {page === 'models' && <ModelsPage />}
           {page === 'system' && <SystemPage />}
           {page === 'settings' && <SettingsPage />}

@@ -25,7 +25,7 @@ qubivex system --json                   > test/fixtures/cli-system.json
 
 Write `src/types/api.ts` from these, not from memory.
 
-## Phase 1: foundation, Chat, System (qubivex-ui only)
+## Phase 1: foundation, Chat, System (qubivex-ui only): done
 
 - [ ] `npm create vite` (react-ts). Add Tailwind, lucide-react, react-markdown, remark-gfm,
       rehype-highlight, Vitest and Testing Library. Set `base: '/ui/'` and the proxy (02 §4).
@@ -46,7 +46,7 @@ Write `src/types/api.ts` from these, not from memory.
 **Done when:** against a real `qubivex serve`, you can chat with streaming, stop mid-reply,
 see an auth error and recover by entering the key, and see the System page with real hardware.
 
-## Phase 2: Metrics (qubivex-ui only)
+## Phase 2: Metrics (qubivex-ui only): done
 
 - [ ] `utils/prometheus.ts` parser, `utils/rates.ts` (rates, window means, bucket quantiles,
       reset handling).

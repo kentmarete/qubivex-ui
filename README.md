@@ -4,8 +4,8 @@ The web management interface for the [Qubivex](../qubivex) inference runtime. It
 chat, live metrics, model management and system information. It is a static React app that
 the `qubivex` binary embeds and serves at `http://localhost:<port>/ui`.
 
-> Status: **Phase 1 done**: shell, auth, Chat (streaming) and System, against today's
-> gateway. Metrics (Phase 2) and Models (Phase 3) show "not built yet" panels. See
+> Status: **Phases 1–2 done**: shell, auth, Chat (streaming), System and Metrics, against
+> today's gateway. Models (Phase 3) shows a "not built yet" panel. See
 > [CHANGELOG.md](CHANGELOG.md) and [the plan](docs/05-implementation-plan.md).
 
 ## Docs
