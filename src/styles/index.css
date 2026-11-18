@@ -56,6 +56,7 @@ body {
 .prose-q blockquote { @apply border-l-2 border-border pl-3 text-muted; }
 .prose-q :not(pre) > code { @apply rounded bg-surface-2 px-1 py-0.5 font-mono text-[12.5px]; }
 .prose-q pre { @apply overflow-x-auto rounded-md border border-border bg-[#0e1110] p-3 font-mono text-[12.5px] leading-5; }
+.prose-q .code-block pre { @apply rounded-none border-0; }
 .prose-q table { @apply block overflow-x-auto border-collapse text-[13px]; }
 .prose-q th, .prose-q td { @apply border border-border px-2 py-1 text-left; }
 .prose-q hr { @apply border-border; }

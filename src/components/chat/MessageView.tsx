@@ -29,7 +29,7 @@ export function MessageView({ m, onRetry, canRetry }: { m: ChatMessage; onRetry:
       )}
       {answer ? (
         <div>
-          <Markdown text={answer} />
+          <Markdown text={answer} streaming={streaming} />
         </div>
       ) : streaming && !thinking ? (
         <div className="flex items-center gap-2 text-[13px] text-muted">
