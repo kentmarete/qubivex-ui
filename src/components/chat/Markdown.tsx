@@ -1,7 +1,8 @@
 import { memo, type ReactNode } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { CopyButton } from '../common/CopyButton';
+import type { Element } from 'hast';
+import { CodeBlock } from './CodeBlock';
 import { rehypeHighlightSome } from './highlight';
 
 /** Plain text of a rendered node tree, for the code block copy button. */
@@ -13,29 +14,46 @@ function textOf(node: ReactNode): string {
   return '';
 }
 
-const components: Components = {
-  pre({ children }) {
-    return (
-      <div className="group relative">
-        <pre>{children}</pre>
-        <CopyButton text={textOf(children).replace(/\n$/, '')} className="absolute right-1.5 top-1.5 bg-surface/90 opacity-0 transition-opacity focus:opacity-100 group-hover:opacity-100" />
-      </div>
-    );
-  },
-  a({ href, children }) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer nofollow">
-        {children}
-      </a>
-    );
-  },
-};
+/** The fence tag of a <pre><code class="language-x">, if any. */
+function fenceLanguage(pre: Element | undefined): string | null {
+  const code = pre?.children.find((c): c is Element => c.type === 'element' && c.tagName === 'code');
+  const cls = code?.properties?.className;
+  for (const c of Array.isArray(cls) ? cls : []) {
+    const s = String(c);
+    if (s.startsWith('language-')) return s.slice('language-'.length);
+  }
+  return null;
+}
+
+function components(editor: boolean): Components {
+  return {
+    pre({ node, children }) {
+      return (
+        <CodeBlock code={textOf(children).replace(/\n$/, '')} lang={fenceLanguage(node)} editor={editor}>
+          {children}
+        </CodeBlock>
+      );
+    },
+    a({ href, children }) {
+      return (
+        <a href={href} target="_blank" rel="noopener noreferrer nofollow">
+          {children}
+        </a>
+      );
+    },
+  };
+}
+
+// Code blocks are plain highlighted text while a reply streams (re-rendering an editor per
+// token is costly) and Monaco editors once it is complete.
+const STREAMING = components(false);
+const COMPLETE = components(true);
 
 /** Model output as markdown. Raw HTML is not rendered (react-markdown's default). */
-export const Markdown = memo(function Markdown({ text }: { text: string }) {
+export const Markdown = memo(function Markdown({ text, streaming = false }: { text: string; streaming?: boolean }) {
   return (
     <div className="prose-q">
-      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlightSome]} components={components}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlightSome]} components={streaming ? STREAMING : COMPLETE}>
         {text}
       </ReactMarkdown>
     </div>

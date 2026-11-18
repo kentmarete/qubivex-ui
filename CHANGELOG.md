@@ -1,5 +1,24 @@
 # Changelog
 
+## Chat: Monaco code blocks (2026-11-19)
+
+No backend changes.
+
+- Fenced code blocks in a completed reply render as read-only Monaco editors: line numbers,
+  folding, find, multi-cursor, bracket matching. Each block has a header with its language
+  and a Copy button.
+- While a reply streams, blocks stay as highlight.js text; they switch to Monaco when the
+  reply completes, at the same height, so the layout does not jump.
+- Editors size to their content up to 600px, then scroll; the page keeps scrolling when a
+  block has nothing to scroll.
+- Monaco (`monaco-editor` 0.57.0) is bundled locally, not loaded from a CDN, and lazy-loaded
+  in its own chunk (~3.4 MB, ~874 KB gzip) on the first completed code block. Only the core
+  editor, a few features and the Monarch grammars are included; the TypeScript, CSS and
+  HTML language services are not. JSON diagnostics are off.
+- Fence tags are mapped to Monaco languages (`py`, `ts`, `sh`, `yml`, ...); unknown or
+  missing tags show as plain text. If Monaco fails to load, the block falls back to the
+  highlighted text.
+
 ## Phase 3a: Models with load and unload (2026-11-15)
 
 Uses only existing routes: `/v1/system`, `POST /v1/models/load`, `POST /v1/models/unload`.

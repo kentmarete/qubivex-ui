@@ -1,6 +1,13 @@
 import '@testing-library/jest-dom/vitest';
-import { afterEach } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
+import { createElement } from 'react';
+
+// Monaco needs a real browser (layout, canvas, workers). In tests the editor is a stub.
+vi.mock('../src/components/chat/CodeEditor', () => ({
+  default: ({ code, language }: { code: string; language: string }) =>
+    createElement('pre', { 'data-testid': 'code-editor', 'data-language': language }, code),
+}));
 
 // Node 26 defines a global `localStorage` that is undefined unless --localstorage-file is
 // given, and it shadows jsdom's. Tests get an in-memory Storage instead.
