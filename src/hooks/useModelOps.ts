@@ -6,6 +6,7 @@
 import { useSyncExternalStore } from 'react';
 import { ApiError } from '../services/api';
 import { loadModel, unloadModel } from '../services/models';
+import { getGenerationPrefs } from './useGenerationPrefs';
 
 export interface PendingLoad {
   /** What was sent as `model`: an installed id or a directory on the server. */
@@ -93,9 +94,15 @@ function adminError(e: unknown, what: string): boolean {
 
 /**
  * Starts loading `model` (as `id`, if given). Resolves when the request ends, however it
- * ends; `onSettled` runs then too, to refresh what depends on the loaded set.
+ * ends; `onSettled` runs then too, to refresh what depends on the loaded set. `context`
+ * defaults to the Settings page's load context; null sends none (the server decides).
  */
-export async function startLoad(model: string, id?: string, onSettled?: () => void): Promise<void> {
+export async function startLoad(
+  model: string,
+  id?: string,
+  onSettled?: () => void,
+  context: number | null = getGenerationPrefs().loadContext,
+): Promise<void> {
   const target = id?.trim() || model;
   if (state.loads.has(target)) return;
   set({
@@ -104,7 +111,7 @@ export async function startLoad(model: string, id?: string, onSettled?: () => vo
     sources: new Map(state.sources).set(target, model),
   });
   try {
-    const card = await loadModel(model, target);
+    const card = await loadModel(model, { id: target, context });
     set({ unloaded: state.unloaded.filter((u) => u !== card.id) });
     notify('ok', `Loaded ${card.id}.`);
   } catch (e) {

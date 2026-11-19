@@ -228,7 +228,7 @@ export function ModelsPage({ onAskKey }: { onAskKey: (kind: SecretKind) => void 
         </div>
       )}
 
-      <LoadDialog open={loadOpen} onClose={() => setLoadOpen(false)} onLoad={(m, id) => void startLoad(m, id, settled)} suggestions={ops.unloaded} />
+      <LoadDialog open={loadOpen} onClose={() => setLoadOpen(false)} onLoad={(m, id, context) => void startLoad(m, id, settled, context)} suggestions={ops.unloaded} />
       <UnloadDialog id={unloadId} runtime={unloadRow?.runtime ?? null} onClose={() => setUnloadId(null)} onUnload={(id) => void startUnload(id, settled)} />
     </div>
   );

@@ -7,14 +7,23 @@ import { ApiError, request } from './api';
 /** Load blocks until the model is ready (docs/03 §3.8): allow it ten minutes. */
 export const LOAD_TIMEOUT_MS = 10 * 60_000;
 
+export interface LoadOptions {
+  /** Serve it under another name. */
+  id?: string;
+  /** Context limit in tokens for this load; the model's own limit still caps it. */
+  context?: number | null;
+  signal?: AbortSignal;
+}
+
 /**
  * POST /v1/models/load. `model` is an installed id or a directory on the server; `id`
  * serves it under another name. 201 first load, 200 already loaded, 409 if the directory is
- * loaded under another id.
+ * loaded under another id or with another context.
  */
-export function loadModel(model: string, id?: string, signal?: AbortSignal): Promise<ModelCard> {
-  const body: { model: string; id?: string } = { model };
+export function loadModel(model: string, { id, context, signal }: LoadOptions = {}): Promise<ModelCard> {
+  const body: { model: string; id?: string; context?: number } = { model };
   if (id && id !== model) body.id = id;
+  if (context) body.context = context;
   return request<ModelCard>('/v1/models/load', { body, auth: 'admin', timeoutMs: LOAD_TIMEOUT_MS, signal });
 }
 

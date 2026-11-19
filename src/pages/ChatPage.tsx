@@ -8,6 +8,7 @@ import { ErrorPanel } from '../components/common/ErrorPanel';
 import { Unavailable } from '../components/common/Unavailable';
 import { Button } from '../components/common/ui';
 import { DEFAULT_SETTINGS, useChat, type ChatSettings } from '../hooks/useChat';
+import { useGenerationPrefs } from '../hooks/useGenerationPrefs';
 import { useRuntime } from '../hooks/useRuntime';
 import { loadJson, saveJson } from '../utils/storage';
 
@@ -17,16 +18,18 @@ export function ChatPage({ onAskKey }: { onAskKey: () => void }) {
   const rt = useRuntime();
   const chat = useChat();
   const model = rt.selectedModel;
-  const [settings, setSettings] = useState<ChatSettings>(DEFAULT_SETTINGS);
+  const prefs = useGenerationPrefs();
+  const defaults: ChatSettings = { ...DEFAULT_SETTINGS, maxTokens: prefs.defaultMaxTokens };
+  const [settings, setSettings] = useState<ChatSettings>(defaults);
   const [showSettings, setShowSettings] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const scroller = useRef<HTMLDivElement>(null);
   const pinned = useRef(true);
 
-  // Settings are remembered per model.
+  // Settings are remembered per model; a model without any starts from the Settings page's defaults.
   useEffect(() => {
-    if (model) setSettings(loadJson(settingsKey(model), DEFAULT_SETTINGS));
-  }, [model]);
+    if (model) setSettings(loadJson(settingsKey(model), { ...DEFAULT_SETTINGS, maxTokens: prefs.defaultMaxTokens }));
+  }, [model, prefs.defaultMaxTokens]);
   const updateSettings = (s: ChatSettings) => {
     setSettings(s);
     if (model) saveJson(settingsKey(model), s);
@@ -39,6 +42,7 @@ export function ChatPage({ onAskKey }: { onAskKey: () => void }) {
   }, [chat.conversation.messages]);
 
   const maxContext = rt.system?.models.find((m) => m.id === model)?.max_context ?? null;
+  const maxTokensCap = rt.system?.limits?.max_generation_tokens ?? null;
   const messages = chat.conversation.messages;
 
   let blocker: React.ReactNode = null;
@@ -143,7 +147,7 @@ export function ChatPage({ onAskKey }: { onAskKey: () => void }) {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <ChatSettingsPanel value={settings} onChange={updateSettings} maxContext={maxContext} />
+          <ChatSettingsPanel value={settings} onChange={updateSettings} maxContext={maxContext} maxTokensCap={maxTokensCap} defaults={defaults} />
         </aside>
       )}
 

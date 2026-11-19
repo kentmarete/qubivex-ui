@@ -144,9 +144,20 @@ export interface Capabilities {
   web_ui?: boolean;
 }
 
+/** The server's token limits (`/v1/system` `limits`); null where unset, so the context limits it. */
+export interface ServerLimits {
+  default_max_tokens: number;
+  max_generation_tokens: number | null;
+  max_prompt_tokens: number | null;
+  /** The server's --context, used for loads that do not set one. */
+  load_context: number | null;
+}
+
 export interface SystemInfo {
   object: 'system';
   hardware: HardwareProfile | null;
+  /** Absent on servers before the load-context change. */
+  limits?: ServerLimits;
   models: LoadedModel[];
   model_states: { id: string; state: ModelState }[];
   models_draining: number;

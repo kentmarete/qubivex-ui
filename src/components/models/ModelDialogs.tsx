@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react';
+import { getGenerationPrefs } from '../../hooks/useGenerationPrefs';
 import type { LoadedModel } from '../../types/api';
 import { Dialog } from '../common/Dialog';
 import { Button } from '../common/ui';
 
 const INPUT = 'h-9 w-full rounded-md border border-border bg-surface-2 px-3 font-mono text-[13px] placeholder:text-muted/60';
 
-/** Load by installed id or server-side directory, optionally under another id. */
+/** A positive whole number from a text field; null when empty or not one. */
+export function parseTokens(s: string): number | null {
+  const t = s.trim();
+  if (!/^\d+$/.test(t)) return null;
+  const n = Number(t);
+  return Number.isSafeInteger(n) && n > 0 ? n : null;
+}
+
+/** Load by installed id or server-side directory, optionally under another id and context. */
 export function LoadDialog({
   open,
   onClose,
@@ -14,17 +23,20 @@ export function LoadDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onLoad: (model: string, id: string | undefined) => void;
+  onLoad: (model: string, id: string | undefined, context: number | null) => void;
   suggestions: readonly string[];
 }) {
   const [model, setModel] = useState('');
   const [id, setId] = useState('');
+  const [context, setContext] = useState('');
   useEffect(() => {
     if (open) {
       setModel('');
       setId('');
+      setContext(getGenerationPrefs().loadContext?.toString() ?? '');
     }
   }, [open]);
+  const contextBad = context.trim() !== '' && parseTokens(context) === null;
 
   return (
     <Dialog open={open} onClose={onClose} title="Load a model">
@@ -33,8 +45,8 @@ export function LoadDialog({
         onSubmit={(e) => {
           e.preventDefault();
           const m = model.trim();
-          if (!m) return;
-          onLoad(m, id.trim() || undefined);
+          if (!m || contextBad) return;
+          onLoad(m, id.trim() || undefined, parseTokens(context));
           onClose();
         }}
       >
@@ -65,6 +77,25 @@ export function LoadDialog({
           </label>
           <input id="load-id" className={INPUT} value={id} onChange={(e) => setId(e.target.value)} placeholder="defaults to the model" autoComplete="off" spellCheck={false} />
         </div>
+        <div className="space-y-1.5">
+          <label htmlFor="load-context" className="text-[13px]">
+            Context length <span className="text-muted">(tokens, optional)</span>
+          </label>
+          <input
+            id="load-context"
+            className={INPUT}
+            value={context}
+            onChange={(e) => setContext(e.target.value)}
+            placeholder="the server's --context, else the model's"
+            inputMode="numeric"
+            autoComplete="off"
+            aria-invalid={contextBad}
+            aria-describedby="load-context-help"
+          />
+          <p id="load-context-help" className={contextBad ? 'text-[12px] text-danger' : 'text-[12px] text-muted'}>
+            {contextBad ? 'Enter a whole number of tokens above 0, or leave it empty.' : 'Capped by the model’s own limit. A longer context reserves more memory per conversation. The default is set in Settings.'}
+          </p>
+        </div>
         <p className="text-[13px] text-muted">
           Loading reads the weights from the server&apos;s disk and can take several minutes. It keeps going on the server if you close this tab.
         </p>
@@ -72,7 +103,7 @@ export function LoadDialog({
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="primary" type="submit" disabled={!model.trim()}>
+          <Button variant="primary" type="submit" disabled={!model.trim() || contextBad}>
             Load
           </Button>
         </div>

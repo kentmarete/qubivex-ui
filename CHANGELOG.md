@@ -1,5 +1,19 @@
 # Changelog
 
+## Generation settings: max tokens and context length (2026-11-19)
+
+Needs the qubivex server change that adds `context` to `POST /v1/models/load` and `limits`
+to `/v1/system`. Older servers ignore `context` and report no limits; the page still works.
+
+- Settings has a Generation card: the default max tokens a chat starts with, and the context
+  length sent when loading a model. Both are kept in this browser. It shows the server's
+  limits (`--default-max-tokens`, `--max-generation-tokens`, `--max-prompt-tokens`,
+  `--context`) and each loaded model's context, and refuses a default above the server cap.
+- The Load dialog has a Context length field, prefilled from Settings; empty leaves it to
+  the server. Retry and Load from the inventory use the Settings value.
+- Chat settings cap max tokens at the smaller of the model's context and the server cap,
+  and Reset returns to the Settings defaults.
+
 ## Chat: Monaco code blocks (2026-11-19)
 
 No backend changes.

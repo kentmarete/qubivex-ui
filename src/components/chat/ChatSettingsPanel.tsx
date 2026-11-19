@@ -18,7 +18,23 @@ function Row({ label, htmlFor, hint, children }: { label: string; htmlFor: strin
 
 const input = 'h-8 w-full rounded-md border border-border bg-surface-2 px-2 font-mono text-[13px]';
 
-export function ChatSettingsPanel({ value, onChange, maxContext }: { value: ChatSettings; onChange: (s: ChatSettings) => void; maxContext: number | null }) {
+export function ChatSettingsPanel({
+  value,
+  onChange,
+  maxContext,
+  maxTokensCap = null,
+  defaults = DEFAULT_SETTINGS,
+}: {
+  value: ChatSettings;
+  onChange: (s: ChatSettings) => void;
+  maxContext: number | null;
+  /** The server's --max-generation-tokens. */
+  maxTokensCap?: number | null;
+  /** What Reset restores: the Settings page's defaults. */
+  defaults?: ChatSettings;
+}) {
+  const caps = [maxContext, maxTokensCap].filter((c): c is number => c !== null);
+  const maxTokens = caps.length ? Math.min(...caps) : null;
   const set = <K extends keyof ChatSettings>(k: K, v: ChatSettings[K]) => onChange({ ...value, [k]: v });
   const num = (s: string, fallback: number) => {
     const n = Number(s);
@@ -29,14 +45,14 @@ export function ChatSettingsPanel({ value, onChange, maxContext }: { value: Chat
       <Row label="Temperature" htmlFor="s-temp" hint={value.temperature.toFixed(2)}>
         <input id="s-temp" type="range" min={0} max={2} step={0.05} value={value.temperature} onChange={(e) => set('temperature', Number(e.target.value))} className="w-full accent-[rgb(var(--accent))]" />
       </Row>
-      <Row label="Max tokens" htmlFor="s-max" hint={maxContext ? `context ${maxContext}` : undefined}>
+      <Row label="Max tokens" htmlFor="s-max" hint={[maxContext ? `context ${maxContext}` : null, maxTokensCap ? `cap ${maxTokensCap}` : null].filter(Boolean).join(' · ') || undefined}>
         <input
           id="s-max"
           type="number"
           min={1}
-          max={maxContext ?? undefined}
+          max={maxTokens ?? undefined}
           value={value.maxTokens}
-          onChange={(e) => set('maxTokens', Math.max(1, Math.round(num(e.target.value, DEFAULT_SETTINGS.maxTokens))))}
+          onChange={(e) => set('maxTokens', Math.max(1, Math.round(num(e.target.value, defaults.maxTokens))))}
           className={input}
         />
       </Row>
@@ -63,7 +79,7 @@ export function ChatSettingsPanel({ value, onChange, maxContext }: { value: Chat
         <textarea id="s-system" rows={3} value={value.systemPrompt} onChange={(e) => set('systemPrompt', e.target.value)} className="w-full resize-y rounded-md border border-border bg-surface-2 px-2 py-1.5 text-[13px]" />
       </Row>
       <div className="flex justify-end">
-        <Button size="sm" variant="ghost" onClick={() => onChange(DEFAULT_SETTINGS)}>
+        <Button size="sm" variant="ghost" onClick={() => onChange(defaults)}>
           Reset to defaults
         </Button>
       </div>
