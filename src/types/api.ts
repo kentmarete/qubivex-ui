@@ -212,6 +212,28 @@ export interface ChatChunk {
   usage?: Usage;
 }
 
+// ---- installed (qubivex docs/serving/http-api.md "Installed models") -------------------
+
+/** One model on disk under the server's model directories. Model fields are absent when `status` is `error`. */
+export interface InstalledModel {
+  id: string | null;
+  name?: string;
+  /** Directory name inside its models directory; never a path. */
+  dir: string;
+  status: 'ok' | 'error';
+  error: string | null;
+  install_state: string;
+  /** true when any id serves it, else the state of a load in flight or failed. */
+  loaded: boolean | 'loading' | 'failed';
+  serve_ids: string[];
+  architecture?: string;
+  format?: string;
+  quantization?: string | null;
+  source?: { provider: string; repository: string; revision: string } | null;
+  max_context?: number | null;
+  bytes?: { total: number; dense: number; routed_experts: number };
+}
+
 // ---- downloads (qubivex docs/serving/http-api.md "Model downloads") ----------------
 
 export interface SearchHit {

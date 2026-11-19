@@ -1,7 +1,7 @@
 // Load and unload (EXISTING admin routes, docs/01 §1) and the model-management probe
 // (docs/02 §9). The admin token is sent on these calls, never the API key.
 
-import type { ModelCard, UnloadResult } from '../types/api';
+import type { InstalledModel, ModelCard, UnloadResult } from '../types/api';
 import { ApiError, request } from './api';
 
 /** Load blocks until the model is ready (docs/03 §3.8): allow it ten minutes. */
@@ -50,4 +50,10 @@ export async function probeModelManagement(signal?: AbortSignal): Promise<Suppor
     if (e.status === 401 || e.status === 403) return 'available';
     return 'unknown';
   }
+}
+
+/** GET /v1/admin/models/installed: every model on disk, loaded or not. */
+export async function listInstalled(signal?: AbortSignal): Promise<InstalledModel[]> {
+  const r = await request<{ data: InstalledModel[] }>('/v1/admin/models/installed', { auth: 'admin', notifyAuth: false, signal, timeoutMs: 10_000 });
+  return r.data;
 }

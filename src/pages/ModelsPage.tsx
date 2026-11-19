@@ -12,8 +12,9 @@ import { dismissNotice, startLoad, startUnload, useModelOps, type Notice } from 
 import { usePolling } from '../hooks/usePolling';
 import { useRuntime } from '../hooks/useRuntime';
 import type { SecretKind } from '../services/auth';
+import { listInstalled } from '../services/models';
 import { getSystem } from '../services/system';
-import type { SystemInfo } from '../types/api';
+import type { InstalledModel, SystemInfo } from '../types/api';
 import { buildRows } from '../utils/inventory';
 
 /** Poll /v1/system every second while a load runs (docs/03 §3.8), else every 5 s. */
@@ -141,8 +142,8 @@ function NeedsModelManagement({ caps, what }: { caps: Caps; what: string }): Rea
       );
     case 'available':
       return (
-        <Unavailable title="Not in this version of the UI yet">
-          This server supports model management. {what} arrives in a later release of the web UI.
+        <Unavailable title="Downloads are off on this server">
+          This server lists and loads installed models but cannot download them. {what} needs a server with a model source, as <code className="font-mono">qubivex serve</code> sets up.
         </Unavailable>
       );
     case 'unknown':
@@ -166,19 +167,28 @@ export function ModelsPage({ onAskKey }: { onAskKey: (kind: SecretKind) => void 
   const [unloadId, setUnloadId] = useState<string | null>(null);
   const [pullRepo, setPullRepo] = useState<string | null>(null);
 
-  const rows = useMemo(() => buildRows(sys, ops), [sys, ops]);
+  const [installed, setInstalled] = useState<InstalledModel[] | null>(null);
+  // The on-disk list needs the server's model management and a working admin token.
+  const canList = caps.modelManagement === 'available' && caps.admin === 'valid';
+
+  const rows = useMemo(() => buildRows(sys, ops, canList ? installed : null), [sys, ops, installed, canList]);
   const loading = rows.some((r) => r.state === 'loading');
 
   const poll = useCallback(async (signal: AbortSignal) => {
     try {
-      const s = await getSystem(signal);
+      const [s, disk] = await Promise.all([
+        getSystem(signal),
+        // The runtime view still works without the list, so its failure only drops it.
+        canList ? listInstalled(signal).catch(() => null) : Promise.resolve(null),
+      ]);
       setSys(s);
+      setInstalled(disk);
       setError(null);
     } catch (e) {
       if (!signal.aborted) setError(e);
     }
-  }, []);
-  usePolling(poll, loading ? POLL_LOADING_MS : POLL_MS, { restartKey: nonce });
+  }, [canList]);
+  usePolling(poll, loading ? POLL_LOADING_MS : POLL_MS, { restartKey: `${nonce}:${canList}` });
 
   // After an action: re-read now, and let Chat and the shell see the new loaded set.
   const settled = useCallback(() => {
@@ -222,20 +232,24 @@ export function ModelsPage({ onAskKey }: { onAskKey: (kind: SecretKind) => void 
 
       {tab === 'installed' && (
         <div role="tabpanel" aria-label="Installed" className="space-y-4">
-          <div className="flex items-start gap-2 rounded-md border border-border bg-surface-2/60 px-3 py-2 text-[13px] text-muted">
-            <Info className="mt-0.5 h-4 w-4 shrink-0" />
-            <span>
-              Showing loaded models only.{' '}
-              {caps.modelManagement === 'available'
-                ? 'This server has an on-disk inventory; it is not shown in this version of the UI yet.'
-                : 'On-disk inventory needs model management.'}
-            </span>
-          </div>
+          {installed === null || !canList ? (
+            <div className="flex items-start gap-2 rounded-md border border-border bg-surface-2/60 px-3 py-2 text-[13px] text-muted">
+              <Info className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                Showing loaded models only.{' '}
+                {caps.modelManagement !== 'available'
+                  ? 'Models on disk are listed by servers with model management.'
+                  : caps.admin === 'valid'
+                    ? 'Could not read the models on disk; Refresh to try again.'
+                    : 'Models on disk are listed with the admin token.'}
+              </span>
+            </div>
+          ) : null}
 
           {error != null && <ErrorPanel title="Could not read /v1/system" error={error} />}
 
           <Card
-            title="Models in the runtime"
+            title={canList && installed !== null ? 'Models on the server' : 'Models in the runtime'}
             actions={
               <div className="flex gap-1.5">
                 <Button size="sm" variant="ghost" onClick={() => setNonce((n) => n + 1)}>
@@ -252,7 +266,9 @@ export function ModelsPage({ onAskKey }: { onAskKey: (kind: SecretKind) => void 
                 <Spinner /> Reading the runtime…
               </div>
             ) : rows.length === 0 ? (
-              <p className="text-[13px] text-muted">No models are loaded. Use Load model to load one by its installed id or directory.</p>
+              <p className="text-[13px] text-muted">{canList && installed !== null
+                  ? 'No models are installed in the server\'s model directories. Use Discover to download one.'
+                  : 'No models are loaded. Use Load model to load one by its installed id or directory.'}</p>
             ) : (
               <InventoryTable rows={rows} actions={actions} />
             )}
