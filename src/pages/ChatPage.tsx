@@ -43,6 +43,9 @@ export function ChatPage({ onAskKey }: { onAskKey: () => void }) {
 
   const maxContext = rt.system?.models.find((m) => m.id === model)?.max_context ?? null;
   const maxTokensCap = rt.system?.limits?.max_generation_tokens ?? null;
+  // Above the server's --max-generation-tokens is a 400, so ask for at most that. Past the
+  // context is fine: the server stops when the context is full.
+  const sent: ChatSettings = maxTokensCap && settings.maxTokens > maxTokensCap ? { ...settings, maxTokens: maxTokensCap } : settings;
   const messages = chat.conversation.messages;
 
   let blocker: React.ReactNode = null;
@@ -120,7 +123,7 @@ export function ChatPage({ onAskKey }: { onAskKey: () => void }) {
               </div>
             )}
             {messages.map((m) => (
-              <MessageView key={m.id} m={m} canRetry={!chat.streaming && !!model} onRetry={() => model && chat.retry(m.id, model, settings)} />
+              <MessageView key={m.id} m={m} canRetry={!chat.streaming && !!model} onRetry={() => model && chat.retry(m.id, model, sent)} />
             ))}
           </div>
         </div>
@@ -131,7 +134,7 @@ export function ChatPage({ onAskKey }: { onAskKey: () => void }) {
             onStop={chat.stop}
             onSend={(t) => {
               pinned.current = true;
-              if (model) chat.send(t, model, settings);
+              if (model) chat.send(t, model, sent);
             }}
             disabled={!model || !!blocker}
             disabledReason={!model ? 'No model selected' : 'Chat is unavailable'}

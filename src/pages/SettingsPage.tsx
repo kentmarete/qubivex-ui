@@ -132,7 +132,7 @@ function GenerationCard({ system }: { system: SystemInfo | null }) {
   const ctx = parseTokens(context);
   const maxError = max === null ? 'Enter a whole number of tokens above 0.' : limits?.max_generation_tokens && max > limits.max_generation_tokens ? `The server allows at most ${formatNumber(limits.max_generation_tokens)} (--max-generation-tokens).` : null;
   const ctxError = context.trim() !== '' && ctx === null ? 'Enter a whole number of tokens above 0, or leave it empty.' : null;
-  const maxWarn = !maxError && max !== null && smallest !== null && max >= smallest ? `A loaded model has a context of ${formatNumber(smallest)} tokens; prompt plus max tokens must fit in it, or the request is refused.` : null;
+  const maxWarn = !maxError && max !== null && smallest !== null && max >= smallest ? `A loaded model has a context of ${formatNumber(smallest)} tokens; a reply stops when the context is full.` : null;
   const dirty = max !== prefs.defaultMaxTokens || ctx !== prefs.loadContext;
 
   return (
