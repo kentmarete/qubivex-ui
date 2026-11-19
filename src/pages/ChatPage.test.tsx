@@ -63,6 +63,19 @@ describe('Chat', () => {
     await waitFor(() => expect(calls.find((c) => c.url === '/v1/chat/completions')?.body).toMatchObject({ max_tokens: 1500 }));
   });
 
+  it('asks for no more than the server cap', async () => {
+    setGenerationPrefs({ defaultMaxTokens: 100000 });
+    const sys = JSON.parse(fixture('system.json'));
+    const { calls } = server({
+      'GET /v1/system': () => json({ ...sys, limits: { default_max_tokens: 512, max_generation_tokens: 4096, max_prompt_tokens: null, load_context: null } }),
+    });
+    const user = userEvent.setup();
+    const box = await ready();
+    await waitFor(() => expect(screen.getByRole('combobox')).toHaveValue('qwen2.5-0.5b-instruct'));
+    await user.type(box, 'Hi{Enter}');
+    await waitFor(() => expect(calls.find((c) => c.url === '/v1/chat/completions')?.body).toMatchObject({ max_tokens: 4096 }));
+  });
+
   it('stops a generation and keeps the partial text', async () => {
     server({
       'POST /v1/chat/completions': ({ signal }) =>
