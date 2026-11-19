@@ -160,6 +160,14 @@ separate. Delete lives in an overflow menu.
 
 ### Discover
 
+> **Built (2026-11-19), against qubivex ADR-013 amendment 8.** Shown when `/v1/system`
+> `capabilities.model_downloads` is true; it does not wait for `model_management`. Differences
+> from the plan below: search runs on submit, not debounced; the pull dialog has file, id,
+> config values (JSON) and "load when done" with a load context, but no revision or name;
+> submitting stays on Discover and a notice points at Jobs. A load that fails with
+> `model_not_found` offers **Download** when the name is `owner/name`, and points at
+> Discover otherwise.
+
 Source: `GET /v1/admin/models/search?q=`.
 
 - Debounced search box (400 ms).
@@ -178,6 +186,11 @@ Source: `GET /v1/admin/models/search?q=`.
   - Submitting switches to Jobs.
 
 ### Jobs
+
+> **Built (2026-11-19).** The server has no job event stream yet, so the UI polls
+> `GET /v1/admin/jobs` every second while a job runs, also off the Models page when a job
+> should load its model when done. Retry asks to load when done; there is no per-file
+> breakdown yet.
 
 Sources: `GET /v1/admin/jobs`, plus `GET /v1/admin/jobs/{id}/events` for each running job.
 
