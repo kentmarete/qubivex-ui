@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fixture, json, mockFetch, unauthorized, type Handler } from '../../test/mockFetch';
 import { resetModelOps } from '../hooks/useModelOps';
+import { DEFAULT_GENERATION_PREFS, setGenerationPrefs } from '../hooks/useGenerationPrefs';
 import { RuntimeProvider } from '../hooks/useRuntime';
 import { clearSecret, setSecret } from '../services/auth';
 import type { LoadedModel, SystemInfo } from '../types/api';
@@ -54,6 +55,7 @@ beforeEach(() => setSecret('admin', 'adm-token'));
 afterEach(() => {
   vi.unstubAllGlobals();
   resetModelOps();
+  setGenerationPrefs(DEFAULT_GENERATION_PREFS);
 });
 
 describe('Models: installed (fallback from /v1/system)', () => {
@@ -136,6 +138,27 @@ describe('Models: load', () => {
     await userEvent.type(screen.getByLabelText(/Serve as/), 'small');
     await userEvent.click(screen.getByRole('button', { name: 'Load' }));
     await waitFor(() => expect(calls.find((c) => c.url.endsWith('/v1/models/load'))?.body).toEqual({ model: '/models/qwen', id: 'small' }));
+  });
+
+  it('sends the context length, prefilled from Settings', async () => {
+    setGenerationPrefs({ loadContext: 4096 });
+    const { calls } = routes({
+      sys: () => system([], []),
+      extra: { 'POST /v1/models/load': () => json({ id: QWEN, object: 'model', created: 1, owned_by: 'qubivex' }, 201) },
+    });
+    renderPage();
+    await screen.findByText('Admin token accepted. You can load and unload models.');
+    await userEvent.click(screen.getByRole('button', { name: /Load model/ }));
+    const ctx = screen.getByLabelText(/Context length/);
+    expect(ctx).toHaveValue('4096');
+    await userEvent.type(screen.getByLabelText('Model'), QWEN);
+    await userEvent.clear(ctx);
+    await userEvent.type(ctx, '12k');
+    expect(screen.getByRole('button', { name: 'Load' })).toBeDisabled();
+    await userEvent.clear(ctx);
+    await userEvent.type(ctx, '8192');
+    await userEvent.click(screen.getByRole('button', { name: 'Load' }));
+    await waitFor(() => expect(calls.find((c) => c.url.endsWith('/v1/models/load'))?.body).toEqual({ model: QWEN, context: 8192 }));
   });
 
   it('shows a 409 conflict with its code and request id', async () => {

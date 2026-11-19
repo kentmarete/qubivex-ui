@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { parseTokens } from '../components/models/ModelDialogs';
 import { ErrorPanel } from '../components/common/ErrorPanel';
 import { SecretInput } from '../components/common/SecretInput';
 import { Badge, Button, Card, Dot, Spinner, type Tone } from '../components/common/ui';
 import { useAuth } from '../hooks/useAuth';
+import { setGenerationPrefs, useGenerationPrefs } from '../hooks/useGenerationPrefs';
 import { useRuntime } from '../hooks/useRuntime';
 import { ApiError } from '../services/api';
 import { clearSecret, setRemember, setSecret, type SecretKind } from '../services/auth';
 import { checkAdminToken, listModels } from '../services/system';
+import type { SystemInfo } from '../types/api';
+import { formatNumber } from '../utils/format';
 
 type Result = { tone: Tone; text: string } | { error: unknown };
 
@@ -99,6 +103,105 @@ function SecretCard({ kind, title, help, isSet }: { kind: SecretKind; title: str
   );
 }
 
+const FIELD = 'h-8 w-full rounded-md border border-border bg-surface-2 px-2 font-mono text-[13px] placeholder:text-muted/60';
+
+function Limit({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-3">
+      <dt className="text-muted">{label}</dt>
+      <dd className="font-mono">{value}</dd>
+    </div>
+  );
+}
+
+/** Default max tokens for chats, the context length for model loads, and the server's limits. */
+function GenerationCard({ system }: { system: SystemInfo | null }) {
+  const prefs = useGenerationPrefs();
+  const [maxTokens, setMaxTokens] = useState(String(prefs.defaultMaxTokens));
+  const [context, setContext] = useState(prefs.loadContext?.toString() ?? '');
+  const [saved, setSaved] = useState(false);
+  useEffect(() => {
+    setMaxTokens(String(prefs.defaultMaxTokens));
+    setContext(prefs.loadContext?.toString() ?? '');
+  }, [prefs]);
+
+  const limits = system?.limits;
+  const contexts = (system?.models ?? []).map((m) => m.max_context);
+  const smallest = contexts.length ? Math.min(...contexts) : null;
+  const max = parseTokens(maxTokens);
+  const ctx = parseTokens(context);
+  const maxError = max === null ? 'Enter a whole number of tokens above 0.' : limits?.max_generation_tokens && max > limits.max_generation_tokens ? `The server allows at most ${formatNumber(limits.max_generation_tokens)} (--max-generation-tokens).` : null;
+  const ctxError = context.trim() !== '' && ctx === null ? 'Enter a whole number of tokens above 0, or leave it empty.' : null;
+  const maxWarn = !maxError && max !== null && smallest !== null && max >= smallest ? `A loaded model has a context of ${formatNumber(smallest)} tokens; prompt plus max tokens must fit in it, or the request is refused.` : null;
+  const dirty = max !== prefs.defaultMaxTokens || ctx !== prefs.loadContext;
+
+  return (
+    <Card title="Generation">
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (maxError || ctxError || max === null) return;
+          setGenerationPrefs({ defaultMaxTokens: max, loadContext: ctx });
+          setSaved(true);
+        }}
+        onChange={() => setSaved(false)}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1">
+            <label htmlFor="gen-max-tokens" className="text-[13px]">
+              Default max tokens
+            </label>
+            <input id="gen-max-tokens" className={FIELD} value={maxTokens} onChange={(e) => setMaxTokens(e.target.value)} inputMode="numeric" autoComplete="off" aria-invalid={maxError !== null} />
+            <p className={maxError ? 'text-[12px] text-danger' : 'text-[12px] text-muted'}>{maxError ?? 'Longest reply a chat asks for, until you change it in that model’s chat settings.'}</p>
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="gen-context" className="text-[13px]">
+              Context length for loads
+            </label>
+            <input
+              id="gen-context"
+              className={FIELD}
+              value={context}
+              onChange={(e) => setContext(e.target.value)}
+              placeholder={limits?.load_context ? `server: ${limits.load_context}` : 'the model’s own'}
+              inputMode="numeric"
+              autoComplete="off"
+              aria-invalid={ctxError !== null}
+            />
+            <p className={ctxError ? 'text-[12px] text-danger' : 'text-[12px] text-muted'}>
+              {ctxError ?? 'Tokens per conversation for models loaded from the Models page; capped by the model. Loaded models keep theirs until unloaded.'}
+            </p>
+          </div>
+        </div>
+        {maxWarn && <p className="rounded-md border border-warn/40 bg-warn/10 p-2 text-[13px] text-warn">{maxWarn}</p>}
+        <div className="flex items-center gap-2">
+          <Button type="submit" variant="primary" size="sm" disabled={!dirty || maxError !== null || ctxError !== null}>
+            Save defaults
+          </Button>
+          {saved && !dirty && (
+            <Badge tone="ok">
+              <Dot tone="ok" />
+              Saved in this browser
+            </Badge>
+          )}
+        </div>
+        {limits && (
+          <dl className="space-y-1 border-t border-border pt-3 text-[13px]">
+            <Limit label="Server default max tokens" value={formatNumber(limits.default_max_tokens)} />
+            <Limit label="Server max tokens cap" value={limits.max_generation_tokens ? formatNumber(limits.max_generation_tokens) : 'the context'} />
+            <Limit label="Server prompt cap" value={limits.max_prompt_tokens ? formatNumber(limits.max_prompt_tokens) : 'the context'} />
+            <Limit label="Server load context" value={limits.load_context ? formatNumber(limits.load_context) : 'the model’s'} />
+            {system?.models.map((m) => (
+              <Limit key={m.id} label={`${m.id} context`} value={formatNumber(m.max_context)} />
+            ))}
+          </dl>
+        )}
+      </form>
+    </Card>
+  );
+}
+
 export function SettingsPage() {
   const auth = useAuth();
   const rt = useRuntime();
@@ -120,6 +223,7 @@ export function SettingsPage() {
         isSet={auth.hasAdminToken}
         help="Needed to load and unload models, and for model management. It is a separate secret (--admin-token); the API key never grants admin access."
       />
+      <GenerationCard system={rt.system} />
       <Card title="Storage">
         <label className="flex items-start gap-3 text-[13px]">
           <input type="checkbox" checked={auth.remember} onChange={(e) => setRemember(e.target.checked)} className="mt-0.5 accent-[rgb(var(--accent))]" />

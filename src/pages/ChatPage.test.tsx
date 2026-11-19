@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fixture, json, mockFetch, pieces, textStream, unauthorized, type Handler } from '../../test/mockFetch';
 import { App } from '../App';
+import { DEFAULT_GENERATION_PREFS, setGenerationPrefs } from '../hooks/useGenerationPrefs';
 
 const sse = (b: ReadableStream<Uint8Array>) => new Response(b, { status: 200, headers: { 'content-type': 'text/event-stream' } });
 
@@ -17,7 +18,10 @@ function server(over: Record<string, Handler> = {}) {
 }
 
 beforeEach(() => window.history.replaceState(null, '', '/ui/chat'));
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  setGenerationPrefs(DEFAULT_GENERATION_PREFS);
+});
 
 async function ready() {
   render(<App />);
@@ -48,6 +52,15 @@ describe('Chat', () => {
       temperature: 0.7,
       max_tokens: 512,
     });
+  });
+
+  it('asks for the default max tokens set on the Settings page', async () => {
+    setGenerationPrefs({ defaultMaxTokens: 1500 });
+    const { calls } = server();
+    const user = userEvent.setup();
+    const box = await ready();
+    await user.type(box, 'Hi{Enter}');
+    await waitFor(() => expect(calls.find((c) => c.url === '/v1/chat/completions')?.body).toMatchObject({ max_tokens: 1500 }));
   });
 
   it('stops a generation and keeps the partial text', async () => {
