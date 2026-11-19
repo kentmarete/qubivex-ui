@@ -6,7 +6,7 @@ import { resetModelOps } from '../hooks/useModelOps';
 import { DEFAULT_GENERATION_PREFS, setGenerationPrefs } from '../hooks/useGenerationPrefs';
 import { RuntimeProvider } from '../hooks/useRuntime';
 import { clearSecret, setSecret } from '../services/auth';
-import type { LoadedModel, SystemInfo } from '../types/api';
+import type { InstalledModel, LoadedModel, SystemInfo } from '../types/api';
 import { ModelsPage } from './ModelsPage';
 
 const SYSTEM = JSON.parse(fixture('system.json')) as SystemInfo;
@@ -67,7 +67,7 @@ describe('Models: installed (fallback from /v1/system)', () => {
     expect(within(r).getByText('cpu')).toBeInTheDocument();
     expect(within(r).getByText('4/4')).toBeInTheDocument();
     expect(within(r).getByText('948 MiB / 3.48 GiB')).toBeInTheDocument();
-    expect(screen.getByText(/Showing loaded models only\./)).toHaveTextContent('On-disk inventory needs model management.');
+    expect(screen.getByText(/Showing loaded models only\./)).toHaveTextContent('Models on disk are listed by servers with model management.');
     expect(await screen.findByText('Admin token accepted. You can load and unload models.')).toBeInTheDocument();
     expect(within(r).getByRole('button', { name: `Unload ${QWEN}` })).toBeEnabled();
   });
@@ -87,7 +87,56 @@ describe('Models: installed (fallback from /v1/system)', () => {
     routes({ sys: () => ({ ...SYSTEM, capabilities: { model_management: true, admin: true } }) });
     renderPage();
     await userEvent.click(screen.getByRole('tab', { name: 'Discover' }));
-    expect(await screen.findByText('Not in this version of the UI yet')).toBeInTheDocument();
+    expect(await screen.findByText('Downloads are off on this server')).toBeInTheDocument();
+  });
+});
+
+describe('Models: installed (from /v1/admin/models/installed)', () => {
+  const disk = (o: Partial<InstalledModel> & { id: string }): InstalledModel => ({
+    dir: o.id,
+    status: 'ok',
+    error: null,
+    install_state: 'installed',
+    loaded: false,
+    serve_ids: [],
+    architecture: 'transformer_dense 1.0.0',
+    format: 'safetensors',
+    max_context: 40960,
+    bytes: { total: 1_503_238_553, dense: 1_503_238_553, routed_experts: 0 },
+    ...o,
+  });
+
+  it('lists models on disk next to the loaded one, and loads one by id', async () => {
+    const { calls } = routes({
+      sys: () => ({ ...SYSTEM, capabilities: { admin: true, model_management: true } }),
+      extra: {
+        'GET /v1/admin/models/installed': () =>
+          json({
+            object: 'list',
+            data: [
+              disk({ id: QWEN, loaded: true, serve_ids: [QWEN] }),
+              disk({ id: 'qwen3-0.6b', name: 'Qwen3 0.6B' }),
+              disk({ id: 'broken', status: 'error', error: 'config.json is missing', architecture: undefined, bytes: undefined, max_context: undefined }),
+            ],
+          }),
+        'POST /v1/models/load': () => json({ id: 'qwen3-0.6b', object: 'model', created: 1, owned_by: 'qubivex' }, 201),
+      },
+    });
+    renderPage();
+    const idle = await row('qwen3-0.6b');
+    expect(within(idle).getByText('unloaded')).toBeInTheDocument();
+    expect(within(idle).getByText('Qwen3 0.6B')).toBeInTheDocument();
+    expect(within(idle).getByText('1.40 GiB on disk')).toBeInTheDocument();
+    expect(within(await row(QWEN)).getByText('loaded')).toBeInTheDocument();
+    const broken = await row('broken');
+    expect(within(broken).getByText('config.json is missing')).toBeInTheDocument();
+    expect(within(broken).getByRole('button', { name: 'Load broken' })).toBeDisabled();
+    expect(screen.queryByText(/Showing loaded models only\./)).toBeNull();
+    expect(screen.getByText('Models on the server')).toBeInTheDocument();
+
+    await waitFor(() => expect(within(idle).getByRole('button', { name: 'Load qwen3-0.6b' })).toBeEnabled());
+    await userEvent.click(within(idle).getByRole('button', { name: 'Load qwen3-0.6b' }));
+    await waitFor(() => expect(calls.find((c) => c.url.endsWith('/v1/models/load'))?.body).toEqual({ model: 'qwen3-0.6b' }));
   });
 });
 
