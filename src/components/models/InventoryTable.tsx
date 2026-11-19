@@ -51,16 +51,18 @@ function Actions({ row, a }: { row: InventoryRow; a: RowActions }) {
           </Button>
         </span>
       );
-    case 'unloaded':
+    case 'unloaded': {
+      const broken = row.disk?.status === 'error';
       return (
-        <Button size="sm" onClick={() => a.onLoad(row)} disabled={off} title={title} aria-label={`Load ${row.id}`}>
+        <Button size="sm" onClick={() => a.onLoad(row)} disabled={off || broken} title={broken ? 'This model does not validate on the server' : title} aria-label={`Load ${row.id}`}>
           Load
         </Button>
       );
+    }
   }
 }
 
-/** Loaded models from /v1/system, with load and unload (docs/04 Installed, fallback mode). */
+/** Models on disk and in the runtime, with load and unload (docs/04 Installed). */
 export function InventoryTable({ rows, actions }: { rows: InventoryRow[]; actions: RowActions }) {
   return (
     <div className="overflow-x-auto">
@@ -83,6 +85,7 @@ export function InventoryTable({ rows, actions }: { rows: InventoryRow[]; action
         <tbody className="tabular">
           {rows.map((r) => {
             const m = r.runtime;
+            const d = r.disk;
             const why = r.state === 'loaded' ? 'Not reported' : `Not available while ${r.state}`;
             const dash = <span className="text-muted" title={why}>—</span>;
             const errorText = r.error instanceof Error ? r.error.message : null;
@@ -90,6 +93,10 @@ export function InventoryTable({ rows, actions }: { rows: InventoryRow[]; action
               <tr key={r.id} data-testid={`model-row-${r.id}`} className="border-t border-border/60 align-top">
                 <td className="py-1.5 pr-3 font-mono">
                   {r.id}
+                  {d?.name && d.name !== r.id && <div className="font-sans text-[12px] text-muted">{d.name}</div>}
+                  {d?.status === 'error' && (
+                    <div className="mt-0.5 max-w-[360px] whitespace-normal font-sans text-[12px] text-danger">{d.error ?? 'This model does not validate.'}</div>
+                  )}
                   {r.state === 'failed' && (
                     <div className="mt-0.5 max-w-[360px] whitespace-normal font-sans text-[12px] text-danger">
                       {errorText ?? 'The load failed on the server. Its logs have the reason.'}
@@ -103,15 +110,23 @@ export function InventoryTable({ rows, actions }: { rows: InventoryRow[]; action
                   </Badge>
                 </td>
                 <td className="py-1.5 pr-3 font-mono">{m ? m.placement : dash}</td>
-                <td className="py-1.5 pr-3 font-mono text-muted">{m ? m.architecture : dash}</td>
-                <td className="py-1.5 pr-3 text-right font-mono">{m ? formatNumber(m.max_context) : dash}</td>
+                <td className="py-1.5 pr-3 font-mono text-muted">{m ? m.architecture : (d?.architecture ?? dash)}</td>
+                <td className="py-1.5 pr-3 text-right font-mono">{m ? formatNumber(m.max_context) : d?.max_context != null ? formatNumber(d.max_context) : dash}</td>
                 <td className="py-1.5 pr-3 text-right font-mono">{m ? `${m.generation_slots_free}/${m.generation_slots}` : dash}</td>
                 <td className="py-1.5 pr-3 text-right font-mono">{m ? `${m.queue_depth}/${m.queue_limit}` : dash}</td>
                 <td
                   className="py-1.5 pr-3 text-right font-mono"
                   title={m ? `dense ${formatBytes(m.ledger_bytes.dense)} · experts ${formatBytes(m.ledger_bytes.expert_cache)} · KV ${formatBytes(m.ledger_bytes.kv)}` : undefined}
                 >
-                  {m ? (m.plan_budget_bytes === null ? formatBytes(usedBytes(m)) : `${formatBytes(usedBytes(m))} / ${formatBytes(m.plan_budget_bytes)}`) : dash}
+                  {m ? (
+                    m.plan_budget_bytes === null ? formatBytes(usedBytes(m)) : `${formatBytes(usedBytes(m))} / ${formatBytes(m.plan_budget_bytes)}`
+                  ) : d?.bytes ? (
+                    <span className="text-muted" title="Weights on disk">
+                      {formatBytes(d.bytes.total)} on disk
+                    </span>
+                  ) : (
+                    dash
+                  )}
                 </td>
                 <td className="py-1 text-right">
                   <Actions row={r} a={actions} />

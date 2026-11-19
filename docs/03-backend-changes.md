@@ -117,6 +117,12 @@ Built from `Registry::list()`/`reconcile()` over every `cfg.model_dirs` entry, p
 }
 ```
 
+**As built (qubivex `ui-model-pull`):** the list comes from `discover()` over `cfg.model_dirs`
+(the set load resolves ids against), not the registry, so the gateway keeps no registry
+dependency. `dir` is the directory *name*, never a path; `install_state` is always
+`installed` (failed downloads are jobs); `updated_at` is omitted. `/v1/system` declares
+`capabilities.model_management` (true when an admin token is set).
+
 `GET /v1/admin/models/installed/{id}` returns the same object plus `files: [{name, bytes}]`
 and an optional `tensors` summary (`?tensors=true`), the equivalent of `models inspect --json`.
 404 `model_not_found` if absent.
