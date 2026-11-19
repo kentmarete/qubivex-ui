@@ -5,7 +5,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { getSecret, snapshot, subscribe } from '../services/auth';
 import { probeModelManagement, type Support } from '../services/models';
 import { checkAdminToken } from '../services/system';
-import { setAdminDisabled, useModelOps } from './useModelOps';
+import { setAdminDisabled, setDownloadsAvailable, useModelOps } from './useModelOps';
 import { useRuntime } from './useRuntime';
 
 /**
@@ -17,6 +17,8 @@ export type AdminStatus = 'checking' | 'valid' | 'missing' | 'invalid' | 'disabl
 
 export interface Caps {
   modelManagement: Support | 'checking';
+  /** Search and download through the server (`capabilities.model_downloads`). */
+  downloads: Support | 'checking';
   admin: AdminStatus;
 }
 
@@ -30,6 +32,9 @@ export function useCapabilities(): Caps {
   const [admin, setAdmin] = useState<AdminStatus>('checking');
 
   const declaredMM = declared?.model_management;
+  // Only servers that describe themselves can download; older ones never could.
+  const downloads: Support | 'checking' = system == null ? 'checking' : declared?.model_downloads ? 'available' : 'unavailable';
+  useEffect(() => setDownloadsAvailable(downloads === 'available'), [downloads]);
   useEffect(() => {
     if (declaredMM !== undefined) return;
     const ctrl = new AbortController();
@@ -62,6 +67,7 @@ export function useCapabilities(): Caps {
 
   return {
     modelManagement: declaredMM === undefined ? probed : declaredMM ? 'available' : 'unavailable',
+    downloads,
     admin: declared?.admin === false || ops.adminDisabled ? 'disabled' : admin,
   };
 }

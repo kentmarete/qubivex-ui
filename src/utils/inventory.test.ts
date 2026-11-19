@@ -11,6 +11,7 @@ const ops = (o: Partial<ModelOps> = {}): ModelOps => ({
   sources: new Map(),
   notices: [],
   adminDisabled: false,
+  downloads: false,
   ...o,
 });
 

@@ -1,5 +1,22 @@
 # Changelog
 
+## Models: download from the hub through the server (2026-11-19)
+
+Needs the qubivex server change that adds `/v1/admin/models/search`, `/v1/admin/models/pull`,
+`/v1/admin/jobs` and `capabilities.model_downloads` (qubivex ADR-013 amendment 8), and a
+server started with an admin token. Older servers keep the "not built yet" panels.
+
+- Discover searches Hugging Face through the server and shows downloads, likes, formats,
+  gated repositories and what is already installed (with Load). Download opens a dialog for
+  the weight file (for multi-GGUF repositories), the id, config values the checkpoint lacks,
+  and whether to load the model when it finishes, at which context.
+- Jobs lists the server's downloads with a progress bar, size, speed and time left, retry
+  notices, the failure message, and Cancel, Retry and Load. It polls every second while a
+  job runs.
+- A load that fails because the model is not on the server now says so. For an
+  `owner/name` (a hub repository) the notice offers Download, which downloads and then loads
+  it; for any other name it points at Discover.
+
 ## Generation settings: max tokens and context length (2026-11-19)
 
 Needs the qubivex server change that adds `context` to `POST /v1/models/load` and `limits`

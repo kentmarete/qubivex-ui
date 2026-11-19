@@ -1,11 +1,13 @@
-import { Info, KeyRound, Plus, RefreshCw, X } from 'lucide-react';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { Download, Info, KeyRound, Plus, RefreshCw, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ErrorPanel } from '../components/common/ErrorPanel';
 import { Unavailable } from '../components/common/Unavailable';
 import { Button, Card, Dot, Spinner, type Tone } from '../components/common/ui';
+import { DiscoverPanel, JobsPanel, PullDialog } from '../components/models/Downloads';
 import { InventoryTable, type RowActions } from '../components/models/InventoryTable';
 import { LoadDialog, UnloadDialog } from '../components/models/ModelDialogs';
 import { useCapabilities, type AdminStatus, type Caps } from '../hooks/useCapabilities';
+import { setOnLoaded } from '../hooks/useDownloads';
 import { dismissNotice, startLoad, startUnload, useModelOps, type Notice } from '../hooks/useModelOps';
 import { usePolling } from '../hooks/usePolling';
 import { useRuntime } from '../hooks/useRuntime';
@@ -60,7 +62,7 @@ const NOTICE_STYLE: Record<Notice['tone'], string> = {
   danger: 'border-danger/40 bg-danger/10',
 };
 
-function Notices({ notices }: { notices: readonly Notice[] }) {
+function Notices({ notices, onDownload }: { notices: readonly Notice[]; onDownload: (repository: string) => void }) {
   return (
     <div aria-live="polite" className="space-y-2 empty:hidden">
       {notices.map((n) =>
@@ -70,9 +72,24 @@ function Notices({ notices }: { notices: readonly Notice[] }) {
             title={n.text}
             error={n.error}
             action={
-              <button type="button" aria-label="Dismiss" onClick={() => dismissNotice(n.key)} className="rounded p-0.5 text-muted hover:text-text">
-                <X className="h-4 w-4" />
-              </button>
+              <span className="inline-flex items-start gap-2">
+                {n.download && (
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => {
+                      dismissNotice(n.key);
+                      onDownload(n.download ?? '');
+                    }}
+                    aria-label={`Download ${n.download}`}
+                  >
+                    <Download className="h-3.5 w-3.5" /> Download
+                  </Button>
+                )}
+                <button type="button" aria-label="Dismiss" onClick={() => dismissNotice(n.key)} className="rounded p-0.5 text-muted hover:text-text">
+                  <X className="h-4 w-4" />
+                </button>
+              </span>
             }
           />
         ) : (
@@ -86,6 +103,25 @@ function Notices({ notices }: { notices: readonly Notice[] }) {
       )}
     </div>
   );
+}
+
+/** Discover and Jobs need a server that downloads models; until then they say why they are empty. */
+function NeedsDownloads({ caps, what }: { caps: Caps; what: string }): ReactNode {
+  if (caps.downloads === 'checking') {
+    return (
+      <div className="flex items-center gap-2 p-6 text-muted">
+        <Spinner /> Checking what this server supports…
+      </div>
+    );
+  }
+  if (caps.admin === 'disabled') {
+    return (
+      <Unavailable title="Needs the admin token on the server">
+        {what} needs a server started with --admin-token: downloads are admin operations.
+      </Unavailable>
+    );
+  }
+  return <NeedsModelManagement caps={caps} what={what} />;
 }
 
 /** Discover and Jobs need the admin model API (docs/03); today they explain why they are empty. */
@@ -128,6 +164,7 @@ export function ModelsPage({ onAskKey }: { onAskKey: (kind: SecretKind) => void 
   const [nonce, setNonce] = useState(0);
   const [loadOpen, setLoadOpen] = useState(false);
   const [unloadId, setUnloadId] = useState<string | null>(null);
+  const [pullRepo, setPullRepo] = useState<string | null>(null);
 
   const rows = useMemo(() => buildRows(sys, ops), [sys, ops]);
   const loading = rows.some((r) => r.state === 'loading');
@@ -148,6 +185,11 @@ export function ModelsPage({ onAskKey }: { onAskKey: (kind: SecretKind) => void 
     setNonce((n) => n + 1);
     rt.refresh();
   }, [rt]);
+  useEffect(() => {
+    setOnLoaded(settled);
+    return () => setOnLoaded(null);
+  }, [settled]);
+  const loadedIds = useMemo(() => new Set(rows.filter((r) => r.state === 'loaded').map((r) => r.id)), [rows]);
 
   const reason = ADMIN[caps.admin].reason;
   const actions: RowActions = {
@@ -176,7 +218,7 @@ export function ModelsPage({ onAskKey }: { onAskKey: (kind: SecretKind) => void 
       </div>
 
       <AdminBar status={caps.admin} onAsk={() => onAskKey('admin')} />
-      <Notices notices={ops.notices} />
+      <Notices notices={ops.notices} onDownload={setPullRepo} />
 
       {tab === 'installed' && (
         <div role="tabpanel" aria-label="Installed" className="space-y-4">
@@ -219,16 +261,25 @@ export function ModelsPage({ onAskKey }: { onAskKey: (kind: SecretKind) => void 
       )}
       {tab === 'discover' && (
         <div role="tabpanel" aria-label="Discover">
-          <NeedsModelManagement caps={caps} what="Searching and pulling models" />
+          {caps.downloads === 'available' ? (
+            <DiscoverPanel disabledReason={reason} onPull={setPullRepo} loaded={loadedIds} />
+          ) : (
+            <NeedsDownloads caps={caps} what="Searching and pulling models" />
+          )}
         </div>
       )}
       {tab === 'jobs' && (
         <div role="tabpanel" aria-label="Jobs">
-          <NeedsModelManagement caps={caps} what="Tracking pull and verify jobs" />
+          {caps.downloads === 'available' ? (
+            <JobsPanel disabledReason={reason} loaded={loadedIds} />
+          ) : (
+            <NeedsDownloads caps={caps} what="Tracking downloads" />
+          )}
         </div>
       )}
 
       <LoadDialog open={loadOpen} onClose={() => setLoadOpen(false)} onLoad={(m, id, context) => void startLoad(m, id, settled, context)} suggestions={ops.unloaded} />
+      <PullDialog repository={pullRepo} onClose={() => setPullRepo(null)} disabledReason={reason} />
       <UnloadDialog id={unloadId} runtime={unloadRow?.runtime ?? null} onClose={() => setUnloadId(null)} onUnload={(id) => void startUnload(id, settled)} />
     </div>
   );

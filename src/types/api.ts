@@ -139,6 +139,8 @@ export type ModelState = 'loading' | 'loaded' | 'failed';
 export interface Capabilities {
   admin?: boolean;
   model_management?: boolean;
+  /** Search and pull through /v1/admin/models/search and /pull (qubivex ADR-013 amendment 8). */
+  model_downloads?: boolean;
   metrics?: boolean;
   multimodal?: boolean;
   web_ui?: boolean;
@@ -208,4 +210,53 @@ export interface ChatChunk {
     finish_reason: string | null;
   }[];
   usage?: Usage;
+}
+
+// ---- downloads (qubivex docs/serving/http-api.md "Model downloads") ----------------
+
+export interface SearchHit {
+  repository: string;
+  downloads: number;
+  likes: number;
+  formats: string[];
+  /** Needs an access token on the server (HF_TOKEN). */
+  gated: boolean;
+  /** Ids already installed from this repository. */
+  installed_as: string[];
+}
+
+export interface PullSpec {
+  repository: string;
+  revision?: string;
+  files?: string[];
+  id?: string;
+  name?: string;
+  set?: Record<string, unknown>;
+}
+
+export type JobStatus = 'running' | 'validating' | 'succeeded' | 'failed' | 'cancelled';
+
+export interface Job {
+  object: 'job';
+  id: string;
+  kind: 'pull';
+  status: JobStatus;
+  /** The id it installs as, once known. */
+  model: string | null;
+  repository: string;
+  revision: string | null;
+  created_at: number;
+  finished_at: number | null;
+  progress: {
+    bytes_done: number;
+    bytes_total: number;
+    bytes_resumed: number;
+    rate_bps: number | null;
+    eta_seconds: number | null;
+    files: { name: string; done: number; total: number }[];
+    retrying: { file: string; attempt: number; delay_s: number; reason: string } | null;
+  };
+  result: { id: string; warnings: string[]; files: string[] } | null;
+  error: { code: string; message: string } | null;
+  cancellable: boolean;
 }
